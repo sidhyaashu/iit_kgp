@@ -19,20 +19,25 @@ export const navItems = [
       icon: "/assets/icons/video.svg",
       url: "/media",
     },
+  {
+    name: "CSV",
+    icon: "/assets/icons/file-csv.svg",
+    url: "/csv",
+  },
 
   {
     name: "Docs",
-    icon: "/assets/icons/documents.svg",
+    icon: "/assets/icons/file-docx.svg",
     url: "/word",
   },
   {
     name: "PDFs",
-    icon: "/assets/icons/documents.svg",
+    icon: "/assets/icons/file-pdf.svg",
     url: "/pdf",
   },
   {
     name: "PPTs",
-    icon: "/assets/icons/documents.svg",
+    icon: "/assets/icons/file-pptx.svg",
     url: "/presentation",
   },
 

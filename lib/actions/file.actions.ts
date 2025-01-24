@@ -214,6 +214,7 @@ export async function getTotalSpaceUsed() {
       other: { size: 0, latestDate: "" },
       word: { size: 0, latestDate: "" },
       pdf: { size: 0, latestDate: "" },
+      csv: { size: 0, latestDate: "" },
       presentation: { size: 0, latestDate: "" },
       used: 0,
       all: 2 * 1024 * 1024 * 1024 /* 2GB available bucket storage */,
