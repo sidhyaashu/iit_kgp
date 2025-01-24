@@ -45,6 +45,7 @@ export const getFileType = (fileName: string) => {
     "csv",
     "rtf",
     "ods",
+    "pptx",
     "ppt",
     "odp",
     "md",
@@ -65,13 +66,17 @@ export const getFileType = (fileName: string) => {
   const imageExtensions = ["jpg", "jpeg", "png", "gif", "bmp", "svg", "webp"];
   const videoExtensions = ["mp4", "avi", "mov", "mkv", "webm"];
   const audioExtensions = ["mp3", "wav", "ogg", "flac"];
+  const docsExtensions = ["doc", "docx"];
+  const pdfExtensions = ["pdf"];
+  const pptExtensions = ["ppt", "pptx", "odp"];
 
-  if (documentExtensions.includes(extension))
-    return { type: "document", extension };
+  if (documentExtensions.includes(extension)) return { type: "document", extension };
   if (imageExtensions.includes(extension)) return { type: "image", extension };
   if (videoExtensions.includes(extension)) return { type: "video", extension };
   if (audioExtensions.includes(extension)) return { type: "audio", extension };
-
+  if (docsExtensions.includes(extension)) return { type: "word", extension };
+  if (pdfExtensions.includes(extension)) return { type: "pdf", extension };
+  if (pptExtensions.includes(extension)) return { type: "presentation", extension };
   return { type: "other", extension };
 };
 
@@ -164,6 +169,7 @@ export const getFileIcon = (
           return "/assets/icons/file-document.svg";
         case "video":
           return "/assets/icons/file-video.svg";
+
         case "audio":
           return "/assets/icons/file-audio.svg";
         default:
@@ -225,8 +231,19 @@ export const getFileTypesParams = (type: string) => {
       return ["document"];
     case "images":
       return ["image"];
+
     case "media":
       return ["video", "audio"];
+
+
+    case "word":
+      return ["word"];
+    case "pdf":
+      return ["pdf"];
+    case "presentation":
+      return ["presentation"];
+
+
     case "others":
       return ["other"];
     default:

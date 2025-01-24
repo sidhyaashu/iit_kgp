@@ -19,6 +19,24 @@ export const navItems = [
       icon: "/assets/icons/video.svg",
       url: "/media",
     },
+
+  {
+    name: "Docs",
+    icon: "/assets/icons/documents.svg",
+    url: "/word",
+  },
+  {
+    name: "PDFs",
+    icon: "/assets/icons/documents.svg",
+    url: "/pdf",
+  },
+  {
+    name: "PPTs",
+    icon: "/assets/icons/documents.svg",
+    url: "/presentation",
+  },
+
+
     {
       name: "Others",
       icon: "/assets/icons/others.svg",
