@@ -207,38 +207,49 @@
 
   /* Dashboard */
   .dashboard-container {
-    @apply mx-auto grid max-w-7xl grid-cols-1 gap-6 md:grid-cols-2 xl:gap-10 !important;
+    @apply mx-auto grid max-w-7xl grid-cols-1 gap-2 md:grid-cols-2 xl:gap-6 !important; /* Reduced gap */
   }
+
   .dashboard-summary-list {
-    @apply mt-6 grid grid-cols-1 gap-4 xl:mt-10 xl:grid-cols-2 xl:gap-9 !important;
+    @apply mt-2 grid grid-cols-1 gap-2 xl:mt-6 xl:grid-cols-2 xl:gap-5 !important; /* Reduced gap and margin */
   }
+
   .dashboard-summary-card {
-    @apply relative mt-6 rounded-[20px] bg-white p-5 transition-all hover:scale-105 !important;
+    @apply relative mt-2 rounded-[16px] bg-white p-4 transition-all hover:scale-105 !important; /* Reduced padding and border-radius */
   }
+
   .summary-type-icon {
-    @apply absolute -left-3 top-[-25px] z-10 w-[190px] object-contain !important;
+    @apply absolute -left-2 top-[-21px] z-10 w-[186px] object-contain !important; /* Reduced width and positioning */
   }
+
   .summary-type-size {
     @apply h4 relative z-20 w-full text-right !important;
   }
+
   .summary-type-title {
     @apply h5 relative z-20 text-center !important;
   }
+
   .dashboard-recent-files {
-    @apply h-full rounded-[20px] bg-white p-5 xl:p-8 !important;
+    @apply h-full rounded-[16px] bg-white p-4 xl:p-5 !important; /* Reduced padding and border-radius */
   }
+
   .recent-file-details {
-    @apply flex w-full flex-col xl:flex-row xl:justify-between !important;
+    @apply flex w-full flex-row justify-between xl:flex-row xl:justify-between !important;
   }
+
   .recent-file-name {
-    @apply subtitle-2 line-clamp-1 w-full text-light-100 sm:max-w-[200px] lg:max-w-[250px] !important;
+    @apply subtitle-2 line-clamp-1 w-full text-light-100 sm:max-w-[196px] lg:max-w-[246px] !important; /* Reduced max-width */
   }
+
   .recent-file-date {
     @apply body-2 text-light-100/80 !important;
   }
+
   .empty-list {
-    @apply body-1 mt-10 text-center text-light-200 !important;
+    @apply body-1 mt-6 text-center text-light-200 !important; /* Reduced margin-top */
   }
+
 
   /* Type page */
   .page-container {

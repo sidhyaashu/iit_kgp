@@ -193,6 +193,7 @@ export const getUsageSummary = (totalSpace: any) => {
       icon: "/assets/icons/file-document-light.svg",
       url: "/documents",
     },
+
     {
       title: "Images",
       size: totalSpace.image.size,
