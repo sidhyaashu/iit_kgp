@@ -70,8 +70,7 @@ const Dashboard = async () => {
                         .slice(0, 3)
                         .map((file: Models.Document) => (
                             <Link
-                                href={file.url}
-                                target="_blank"
+                                href={file.type}
                                 className="flex items-center gap-3"
                                 key={file.$id}
                             >
