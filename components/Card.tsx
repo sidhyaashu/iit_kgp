@@ -4,10 +4,12 @@ import Thumbnail from "@/components/Thumbnail";
 import { convertFileSize } from "@/lib/utils";
 import FormattedDateTime from "@/components/FormattedDateTime";
 import ActionDropdown from "@/components/ActionDropdown";
-
+// v2/${file.type}/${file?.accountId}
 const Card = ({ file }: { file: Models.Document }) => {
+
+  const redirect_url = file?.type === "pdf" || file?.type === "word"|| file?.type === "presentation"
   return (
-    <Link href={file.url} target="_blank" className="file-card">
+    <Link href={redirect_url? `v2/${file.type}/${file?.accountId}`:`${file?.url}`} className="file-card">
       <div className="flex justify-between">
         <Thumbnail
           type={file.type}

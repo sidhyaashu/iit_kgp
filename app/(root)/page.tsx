@@ -70,7 +70,7 @@ const Dashboard = async () => {
                         .slice(0, 3)
                         .map((file: Models.Document) => (
                             <Link
-                                href={file.type}
+                                href={(file?.type === "pdf" || file?.type === "word"|| file?.type === "presentation")? `v2/${file.type}/${file?.accountId}`:`${file?.url}`}
                                 className="flex items-center gap-3"
                                 key={file.$id}
                             >
