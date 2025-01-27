@@ -1,6 +1,6 @@
 "use client";
 
-import { getFiles } from "@/lib/actions/file.actions";
+import { downloadFileFromURL, getFiles } from "@/lib/actions/file.actions";
 import React, { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { SmartToy, Close } from "@mui/icons-material";
@@ -20,6 +20,7 @@ import ActionDropdown from "@/components/ActionDropdown";
 import Image from "next/image";
 import { getFileIcon } from "@/lib/utils";
 import { aiModel } from "@/configs/aiModel";
+
 
 interface Params {
   type: string;
@@ -44,7 +45,9 @@ const ViewFiles = ({ params }: { params: Params }) => {
   const [userInput, setUserInput] = useState("");
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const [isChatOpen, setIsChatOpen] = useState(false);
-  const [genLoading,setGenLoading] = useState(false)
+  const [genLoading, setGenLoading] = useState(false);
+  const [loadingData, setLoadingData] = useState(false);
+  const [decodedText, setDecodedText] = useState("");
 
   const getFileFunc = async () => {
     setLoading(true);
@@ -69,14 +72,45 @@ const ViewFiles = ({ params }: { params: Params }) => {
     setIsChatOpen(!isChatOpen);
   };
 
+  
+
+  const getFileData = async()=>{
+    try{
+      setLoadingData(true)
+      if(currentPdf){
+        const text = await downloadFileFromURL(currentPdf as string)
+        if (text) {
+          setDecodedText(text);
+        } else {
+          console.log("No data received for the given bucketFileId.");
+        }
+        setLoadingData(false)
+      }else{
+        console.log("Not getting the bucket Field id")
+      }
+    }catch(e){
+      console.log(e)
+      setLoadingData(false)
+    }finally{
+      setLoadingData(false)
+    }
+  }
+
+  
+
+  useEffect(() => {
+    currentPdf && getFileData()
+
+  }, [currentPdf]);
+
+
+  console.log(decodedText)
+
+
   const handleSendMessage = async () => {
     if (userInput.trim() === "") return;
 
-    const newMessages: Message[] = [
-      ...messages,
-      { sender: "user", text: userInput },
-    ];
-
+    const newMessages: Message[] = [...messages, { sender: "user", text: userInput }];
     setMessages(newMessages);
     setUserInput("");
 
@@ -85,7 +119,9 @@ const ViewFiles = ({ params }: { params: Params }) => {
       const loadingMessage: Message = { sender: "assistant", text: "Typing..." };
       setMessages((prevMessages) => [...prevMessages, loadingMessage]);
 
-      const result = await aiModel.sendMessage(userInput);
+      const prompt = `Context:\n${decodedText}\n\nQuestion:\n${userInput}`;
+
+      const result = await aiModel.sendMessage(prompt);
       const assistantResponse: Message = {
         sender: "assistant",
         text: result.response.text(),
@@ -98,6 +134,8 @@ const ViewFiles = ({ params }: { params: Params }) => {
     } catch (error) {
       console.error("Error sending message to AI model:", error);
       setGenLoading(false);
+    }finally{
+      setGenLoading(false)
     }
   };
 
@@ -177,17 +215,21 @@ const ViewFiles = ({ params }: { params: Params }) => {
         </main>
       </SidebarProvider>
 
-      <div>
+      {
+        type === "pdf" && (
+          <div>
         <button
-          onClick={toggleChat}
-          className="absolute bottom-10 right-10 p-4 bg-purple-600 rounded-full shadow-lg text-white z-50"
+          onClick={
+            toggleChat
+          }
+          className="fixed bottom-4 right-4 p-4 bg-purple-600 rounded-full shadow-lg text-white z-50 transition-all duration-300 ease-in-out hover:bg-purple-700"
         >
           {isChatOpen ? <Close /> : <SmartToy />}
         </button>
 
         {isChatOpen && (
           <div
-            className="fixed bottom-20 right-20 w-96 h-96 sm:w-[80vw] sm:h-[80vh] md:w-[50vw] md:h-[70vh] bg-white rounded-xl shadow-lg p-5 flex flex-col overflow-hidden"
+            className="fixed bottom-16 right-4 w-[90%] max-w-[400px] h-[70%] bg-white rounded-xl shadow-lg p-5 flex flex-col overflow-hidden sm:w-[80vw] sm:h-[80vh] md:w-[50vw] md:h-[70vh] transition-all duration-300 ease-in-out"
             style={{ zIndex: 999 }}
           >
             <div
@@ -234,7 +276,7 @@ const ViewFiles = ({ params }: { params: Params }) => {
               />
               <button
                 onClick={handleSendMessage}
-                className="p-3 bg-blue-600 text-black bg-slate-400 hover:bg-slate-500 rounded-md hover:bg-blue-700 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="p-3 bg-blue-600 text-black bg-slate-400 hover:bg-slate-500 rounded-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 Send
               </button>
@@ -242,6 +284,8 @@ const ViewFiles = ({ params }: { params: Params }) => {
           </div>
         )}
       </div>
+        )
+      }
     </div>
   );
 };

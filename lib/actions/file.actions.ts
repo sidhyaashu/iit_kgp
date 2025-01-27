@@ -7,6 +7,31 @@ import { ID, Models, Query } from "node-appwrite";
 import { constructFileUrl, getFileType, parseStringify } from "@/lib/utils";
 import { revalidatePath } from "next/cache";
 import { getCurrentUser } from "@/lib/actions/user.actions";
+import pdfParse from "pdf-parse";
+
+
+import axios from "axios";
+import fs from "fs";
+import path from "path"
+
+export async function downloadFileFromURL(url: string) {
+  try {
+    const response = await axios.get(url, { responseType: "arraybuffer" });
+    const filePath = path.resolve(process.cwd(),"temp", 'downloadedFile.pdf');
+    fs.writeFileSync(filePath, response.data);
+
+
+    let dataBuffer = fs.readFileSync(filePath);
+    let data = await pdfParse(dataBuffer)
+
+    console.log("File downloaded successfully.");
+    return data.text;
+  } catch (error) {
+    console.error("Error downloading file:", error);
+    throw new Error(`Failed to download file from URL: ${url}.`);
+  }
+}
+
 
 const handleError = (error: unknown, message: string) => {
   console.log(error, message);
@@ -238,3 +263,5 @@ export async function getTotalSpaceUsed() {
     handleError(error, "Error calculating total space used:, ");
   }
 }
+
+

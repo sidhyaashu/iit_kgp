@@ -1,16 +1,16 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
-// const apiKey = process.env.GEMINI_API_KEY;
-const genAI = new GoogleGenerativeAI(apiKey as string);
+
+const genAI = new GoogleGenerativeAI(apiKey);
 
 const model = genAI.getGenerativeModel({
   model: "gemini-1.5-flash",
   systemInstruction:
-    "You are a good assistant i want to use you like a RAG application just give me answer based on the provided context.",
+    'You are a helpful assistant designed for RAG (Retrieval Augmented Generation). The following context is extracted from the current file or PDF being analyzed. Use ONLY the information provided in this context to answer the question. If the answer cannot be found within the context, respond with "I cannot find the answer in the provided context." or a similar clear statement. Do not hallucinate or use external knowledge.',
 });
 
 const generationConfig = {
-  temperature: 1,
+  temperature: 0.2,
   topP: 0.95,
   topK: 40,
   maxOutputTokens: 8192,
@@ -22,15 +22,11 @@ export const aiModel = model.startChat({
   history: [
     {
       role: "user",
-      parts: [{ text: "who is SRK ??" }],
+      parts: [{ text: "who is srk??" }],
     },
     {
       role: "model",
-      parts: [
-        {
-          text: "Please provide me with the context. I need some information about SRK to answer your question.\n",
-        },
-      ],
+      parts: [{ text: "I cannot answer based on the provided context.\n" }],
     },
   ],
 });
