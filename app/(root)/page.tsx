@@ -11,7 +11,7 @@ import { getFiles, getTotalSpaceUsed } from "@/lib/actions/file.actions";
 import { convertFileSize, getUsageSummary } from "@/lib/utils";
 
 const Dashboard = async () => {
-  // Parallel requests
+  // Fetch data concurrently
   const [files, totalSpace] = await Promise.all([
     getFiles({ types: [], limit: 10 }),
     getTotalSpaceUsed(),
@@ -21,85 +21,82 @@ const Dashboard = async () => {
   const usageSummary = getUsageSummary(totalSpace);
 
   return (
-      <div className="dashboard-container">
-        <section>
+    <div className="dashboard-container">
+      {/* Dashboard Summary Section */}
+      <section>
+        <ul className="dashboard-summary-list">
+          {usageSummary.map((summary) => (
+            <Link
+              href={summary.url}
+              key={summary.title}
+              className="dashboard-summary-card"
+            >
+              <div className="space-y-4">
+                <div className="flex justify-between gap-3">
+                  <Image
+                    src={summary.icon}
+                    width={100}
+                    height={100}
+                    alt="uploaded image"
+                    className="summary-type-icon"
+                  />
+                  <h4 className="summary-type-size">
+                    {convertFileSize(summary.size) || 0}
+                  </h4>
+                </div>
 
+                <h5 className="summary-type-title">{summary.title}</h5>
+                <Separator className="bg-light-400" />
+                <FormattedDateTime date={summary.latestDate} className="text-center" />
+              </div>
+            </Link>
+          ))}
+        </ul>
+      </section>
 
-          {/* Uploaded file type summaries */}
-          <ul className="dashboard-summary-list">
-            {usageSummary.map((summary) => (
-                <Link
-                    href={summary.url}
-                    key={summary.title}
-                    className="dashboard-summary-card"
+      {/* Dashboard Recent Files Section */}
+      <section className="dashboard-recent-files">
+        <Chart used={totalSpace.used} />
+        <h2 className="h4 xl:h2 text-light-100">Recent files uploaded</h2>
+
+        {files.documents.length > 0 ? (
+          <ul className="mt-5 flex flex-col gap-5">
+            {files.documents
+              .sort((a, b) => new Date(b.$createdAt) - new Date(a.$createdAt)) // Sort files by creation date
+              .slice(0, 3) // Only show the latest 3 files
+              .map((file: Models.Document) => (
+                <div
+                  key={file.$id}
+                  className="flex items-center gap-3"
                 >
-                  <div className="space-y-4">
-                    <div className="flex justify-between gap-3">
-                      <Image
-                          src={summary.icon}
-                          width={100}
-                          height={100}
-                          alt="uploaded image"
-                          className="summary-type-icon"
-                      />
-                      <h4 className="summary-type-size">
-                        {convertFileSize(summary.size) || 0}
-                      </h4>
+                  <Thumbnail
+                    type={file.type}
+                    extension={file.extension}
+                    url={file.url}
+                  />
+                  <div className="recent-file-details">
+                    <div className="flex flex-col gap-1">
+                      <p className="recent-file-name">{file.name}</p>
+                      <FormattedDateTime date={file.$createdAt} className="caption" />
                     </div>
-
-                    <h5 className="summary-type-title">{summary.title}</h5>
-                    <Separator className="bg-light-400"/>
-                    <FormattedDateTime
-                        date={summary.latestDate}
-                        className="text-center"
-                    />
+                    <ActionDropdown file={file} />
                   </div>
-                </Link>
-            ))}
+                </div>
+              ))}
           </ul>
-        </section>
-        <section className="dashboard-recent-files">
-            <Chart used={totalSpace.used} />
-          <h2 className="h4 xl:h2 text-light-100">Recent files uploaded</h2>
-            {files.documents.length > 0 ? (
-                <ul className="mt-5 flex flex-col gap-5">
-                    {files.documents
-                        // Sort files based on created date, if needed
-                        .sort((a, b) => new Date(b.$createdAt).getTime() - new Date(a.$createdAt).getTime())
-                        // Slice the array to get only the latest 3
-                        .slice(0, 3)
-                        .map((file: Models.Document) => (
-                            <Link
-                                href={(file?.type === "pdf" || file?.type === "word"|| file?.type === "presentation")? `v2/${file.type}/${file?.accountId}`:`${file?.url}`}
-                                className="flex items-center gap-3"
-                                key={file.$id}
-                            >
-                                <Thumbnail
-                                    type={file.type}
-                                    extension={file.extension}
-                                    url={file.url}
-                                />
-
-                                <div className="recent-file-details">
-                                    <div className="flex flex-col gap-1">
-                                        <p className="recent-file-name">{file.name}</p>
-                                        <FormattedDateTime
-                                            date={file.$createdAt}
-                                            className="caption"
-                                        />
-                                    </div>
-                                    <ActionDropdown file={file} />
-                                </div>
-                            </Link>
-                        ))}
-                </ul>
-            ) : (
-                <p className="empty-list">No files uploaded</p>
-            )}
-        </section>
-
-      </div>
+        ) : (
+          <p className="empty-list">No files uploaded</p>
+        )}
+      </section>
+    </div>
   );
 };
 
 export default Dashboard;
+
+
+// file?.type === "pdf" ||
+//                     file?.type === "word" ||
+//                     file?.type === "presentation"
+//                       ? `v2/${file.type}/${file?.accountId}`
+//                       : `${file?.url}`

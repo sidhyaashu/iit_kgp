@@ -28,8 +28,15 @@ import {
   renameFile,
   updateFileUsers,
 } from "@/lib/actions/file.actions";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { FileDetails, ShareInput } from "@/components/ActionsModalContent";
+
+// Define the ActionType to improve type checking
+type ActionType = {
+  value: string;
+  label: string;
+  icon: string;
+};
 
 const ActionDropdown = ({ file }: { file: Models.Document }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -40,45 +47,47 @@ const ActionDropdown = ({ file }: { file: Models.Document }) => {
   const [emails, setEmails] = useState<string[]>([]);
 
   const path = usePathname();
+  const router = useRouter(); // Hook to access Next.js router
 
   const closeAllModals = () => {
     setIsModalOpen(false);
     setIsDropdownOpen(false);
     setAction(null);
     setName(file.name);
-    //   setEmails([]);
   };
 
   const handleAction = async () => {
     if (!action) return;
+
     setIsLoading(true);
     let success = false;
 
     const actions = {
-      rename: () =>
-        renameFile({ fileId: file.$id, name, extension: file.extension, path }),
+      rename: () => renameFile({ fileId: file.$id, name, extension: file.extension, path }),
       share: () => updateFileUsers({ fileId: file.$id, emails, path }),
-      delete: () =>
-        deleteFile({ fileId: file.$id, bucketFileId: file.bucketFileId, path }),
+      delete: () => deleteFile({ fileId: file.$id, bucketFileId: file.bucketFileId, path }),
     };
 
-    success = await actions[action.value as keyof typeof actions]();
-
-    if (success) closeAllModals();
-
-    setIsLoading(false);
+    try {
+      success = await actions[action.value as keyof typeof actions]();
+      if (success) closeAllModals();
+    } catch (error) {
+      console.error("Action failed:", error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleRemoveUser = async (email: string) => {
     const updatedEmails = emails.filter((e) => e !== email);
 
-    const success = await updateFileUsers({
-      fileId: file.$id,
-      emails: updatedEmails,
-      path,
-    });
+    try {
+      const success = await updateFileUsers({ fileId: file.$id, emails: updatedEmails, path });
+      if (success) setEmails(updatedEmails);
+    } catch (error) {
+      console.error("Failed to remove user:", error);
+    }
 
-    if (success) setEmails(updatedEmails);
     closeAllModals();
   };
 
@@ -90,28 +99,22 @@ const ActionDropdown = ({ file }: { file: Models.Document }) => {
     return (
       <DialogContent className="shad-dialog button">
         <DialogHeader className="flex flex-col gap-3">
-          <DialogTitle className="text-center text-light-100">
-            {label}
-          </DialogTitle>
+          <DialogTitle className="text-center text-light-100">{label}</DialogTitle>
           {value === "rename" && (
             <Input
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
+              className="prevent-zoom" // Prevent zoom on mobile inputs
             />
           )}
           {value === "details" && <FileDetails file={file} />}
           {value === "share" && (
-            <ShareInput
-              file={file}
-              onInputChange={setEmails}
-              onRemove={handleRemoveUser}
-            />
+            <ShareInput file={file} onInputChange={setEmails} onRemove={handleRemoveUser} />
           )}
           {value === "delete" && (
             <p className="delete-confirmation">
-              Are you sure you want to delete{` `}
-              <span className="delete-file-name">{file.name}</span>?
+              Are you sure you want to delete <span className="delete-file-name">{file.name}</span>?
             </p>
           )}
         </DialogHeader>
@@ -141,18 +144,11 @@ const ActionDropdown = ({ file }: { file: Models.Document }) => {
   return (
     <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
       <DropdownMenu open={isDropdownOpen} onOpenChange={setIsDropdownOpen}>
-        <DropdownMenuTrigger className="shad-no-focus">
-          <Image
-            src="/assets/icons/dots.svg"
-            alt="dots"
-            width={34}
-            height={34}
-          />
+        <DropdownMenuTrigger>
+          <Image src="/assets/icons/dots.svg" alt="dots" width={34} height={34} />
         </DropdownMenuTrigger>
         <DropdownMenuContent>
-          <DropdownMenuLabel className="max-w-[200px] truncate">
-            {file.name}
-          </DropdownMenuLabel>
+          <DropdownMenuLabel className="max-w-[200px] truncate">{file.name}</DropdownMenuLabel>
           <DropdownMenuSeparator />
           {actionsDropdownItems.map((actionItem) => (
             <DropdownMenuItem
@@ -160,12 +156,7 @@ const ActionDropdown = ({ file }: { file: Models.Document }) => {
               className="shad-dropdown-item"
               onClick={() => {
                 setAction(actionItem);
-
-                if (
-                  ["rename", "share", "delete", "details"].includes(
-                    actionItem.value,
-                  )
-                ) {
+                if (["rename", "share", "delete", "details"].includes(actionItem.value)) {
                   setIsModalOpen(true);
                 }
               }}
@@ -175,6 +166,7 @@ const ActionDropdown = ({ file }: { file: Models.Document }) => {
                   href={constructDownloadUrl(file.bucketFileId)}
                   download={file.name}
                   className="flex items-center gap-2"
+                  aria-label={`Download ${file.name}`}
                 >
                   <Image
                     src={actionItem.icon}
@@ -195,7 +187,6 @@ const ActionDropdown = ({ file }: { file: Models.Document }) => {
                   {actionItem.label}
                 </div>
               )}
-              
             </DropdownMenuItem>
           ))}
         </DropdownMenuContent>
@@ -205,4 +196,5 @@ const ActionDropdown = ({ file }: { file: Models.Document }) => {
     </Dialog>
   );
 };
+
 export default ActionDropdown;

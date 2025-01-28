@@ -41,7 +41,7 @@ const ViewFiles = ({ params }: { params: Params }) => {
   const [files, setFiles] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [messages, setMessages] = useState<Message[]>([{ sender: "assistant", text: "Hi! I'm a helpful assistant. How can I assist you?" }]);
   const [userInput, setUserInput] = useState("");
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const [isChatOpen, setIsChatOpen] = useState(false);
@@ -104,7 +104,7 @@ const ViewFiles = ({ params }: { params: Params }) => {
   }, [currentPdf]);
 
 
-  console.log(decodedText)
+  // console.log(decodedText)
 
 
   const handleSendMessage = async () => {
