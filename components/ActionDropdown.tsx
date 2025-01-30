@@ -15,7 +15,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import { Models } from "node-appwrite";
 import { actionsDropdownItems } from "@/constants";
@@ -47,7 +47,7 @@ const ActionDropdown = ({ file }: { file: Models.Document }) => {
   const [emails, setEmails] = useState<string[]>([]);
 
   const path = usePathname();
-  const router = useRouter(); // Hook to access Next.js router
+  const router = useRouter();
 
   const closeAllModals = () => {
     setIsModalOpen(false);
@@ -60,16 +60,15 @@ const ActionDropdown = ({ file }: { file: Models.Document }) => {
     if (!action) return;
 
     setIsLoading(true);
-    let success = false;
 
     const actions = {
-      rename: () => renameFile({ fileId: file.$id, name, extension: file.extension, path }),
-      share: () => updateFileUsers({ fileId: file.$id, emails, path }),
-      delete: () => deleteFile({ fileId: file.$id, bucketFileId: file.bucketFileId, path }),
+      rename: async () => renameFile({ fileId: file.$id, name, extension: file.extension, path }),
+      share: async () => updateFileUsers({ fileId: file.$id, emails, path }),
+      delete: async () => deleteFile({ fileId: file.$id, bucketFileId: file.bucketFileId, path }),
     };
 
     try {
-      success = await actions[action.value as keyof typeof actions]();
+      const success = await actions[action.value as keyof typeof actions]();
       if (success) closeAllModals();
     } catch (error) {
       console.error("Action failed:", error);
@@ -105,7 +104,7 @@ const ActionDropdown = ({ file }: { file: Models.Document }) => {
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="prevent-zoom" // Prevent zoom on mobile inputs
+              className="prevent-zoom"
             />
           )}
           {value === "details" && <FileDetails file={file} />}
@@ -140,6 +139,7 @@ const ActionDropdown = ({ file }: { file: Models.Document }) => {
       </DialogContent>
     );
   };
+
 
   return (
     <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>

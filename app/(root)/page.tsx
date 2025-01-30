@@ -10,24 +10,16 @@ import { Separator } from "@/components/ui/separator";
 import { getFiles, getTotalSpaceUsed } from "@/lib/actions/file.actions";
 import { convertFileSize, getUsageSummary } from "@/lib/utils";
 
-const sortFilesByCreationDate = (documents) => {
-  return documents
-    .sort((a, b) => new Date(b.$createdAt) - new Date(a.$createdAt))
-    .slice(0, 3);
-};
+
 
 const Dashboard = async () => {
-  // Fetch data concurrently
   const [files, totalSpace] = await Promise.all([
-    getFiles({ types: [], limit: 10 }),
+    getFiles({ types: [], limit: 3}),
     getTotalSpaceUsed(),
   ]);
 
-  // Get usage summary
   const usageSummary = getUsageSummary(totalSpace);
   
-  // Sort files by creation date
-  const sortedFiles = sortFilesByCreationDate(files.documents);
 
   return (
     <div className="dashboard-container">
@@ -68,9 +60,9 @@ const Dashboard = async () => {
         <Chart used={totalSpace.used} />
         <h2 className="h4 xl:h2 text-light-100">Recent files uploaded</h2>
 
-        {sortedFiles.length > 0 ? (
+        {files?.documents?.length > 0 ? (
           <ul className="mt-5 flex flex-col gap-5">
-            {sortedFiles.map((file: Models.Document) => (
+            {files?.documents?.map((file: Models.Document) => (
               <div
                 key={file.$id}
                 className="flex items-center gap-3"
