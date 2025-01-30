@@ -3,7 +3,7 @@
 
 ## 🌟 About The Project
 
-Welcome to **NextDocStorage** - an intuitive, cloud-based storage solution for all your documents, multimedia files, and more. This platform allows users to upload and organize a variety of file types such as **images**, **videos**, **audios**, **PDFs**, **PowerPoint presentations (PPT)**, **Word documents**, and **CSV files**. 
+Welcome to **StoreIt** - an intuitive, cloud-based storage solution for all your documents, multimedia files, and more. This platform allows users to upload and organize a variety of file types such as **images**, **videos**, **audios**, **PDFs**, **PowerPoint presentations (PPT)**, **Word documents**, and **CSV files**. 
 
 With automatic categorization and RAG (Red, Amber, Green) for PDF files, organizing your digital assets has never been easier!
 
@@ -31,13 +31,13 @@ Here's a glimpse of what you’ll experience:
 ### 2. **Sign Up Page**
 ![Sign Up](/public//images/signup.png)
 
-### 3. **Sign Up Page**
+### 3. **OTP**
 ![Sign Up](/public//images/otp.png)
 
-### 3. **User Dashboard**
+### 4. **User Dashboard**
 ![Dashboard](/public//images/dashboard.png)
 
-### 4. **Dropdown Menu**
+### 4.1. **Dropdown Menu**
 ![Dropdown](/public//images/dropdown.png)
 
 ### 5. **Dialog Box for File Upload**
