@@ -10,6 +10,12 @@ import { Separator } from "@/components/ui/separator";
 import { getFiles, getTotalSpaceUsed } from "@/lib/actions/file.actions";
 import { convertFileSize, getUsageSummary } from "@/lib/utils";
 
+const sortFilesByCreationDate = (documents) => {
+  return documents
+    .sort((a, b) => new Date(b.$createdAt) - new Date(a.$createdAt))
+    .slice(0, 3);
+};
+
 const Dashboard = async () => {
   // Fetch data concurrently
   const [files, totalSpace] = await Promise.all([
@@ -19,6 +25,9 @@ const Dashboard = async () => {
 
   // Get usage summary
   const usageSummary = getUsageSummary(totalSpace);
+  
+  // Sort files by creation date
+  const sortedFiles = sortFilesByCreationDate(files.documents);
 
   return (
     <div className="dashboard-container">
@@ -59,30 +68,27 @@ const Dashboard = async () => {
         <Chart used={totalSpace.used} />
         <h2 className="h4 xl:h2 text-light-100">Recent files uploaded</h2>
 
-        {files.documents.length > 0 ? (
+        {sortedFiles.length > 0 ? (
           <ul className="mt-5 flex flex-col gap-5">
-            {files.documents
-              .sort((a, b) => new Date(b.$createdAt) - new Date(a.$createdAt)) // Sort files by creation date
-              .slice(0, 3) // Only show the latest 3 files
-              .map((file: Models.Document) => (
-                <div
-                  key={file.$id}
-                  className="flex items-center gap-3"
-                >
-                  <Thumbnail
-                    type={file.type}
-                    extension={file.extension}
-                    url={file.url}
-                  />
-                  <div className="recent-file-details">
-                    <div className="flex flex-col gap-1">
-                      <p className="recent-file-name">{file.name}</p>
-                      <FormattedDateTime date={file.$createdAt} className="caption" />
-                    </div>
-                    <ActionDropdown file={file} />
+            {sortedFiles.map((file: Models.Document) => (
+              <div
+                key={file.$id}
+                className="flex items-center gap-3"
+              >
+                <Thumbnail
+                  type={file.type}
+                  extension={file.extension}
+                  url={file.url}
+                />
+                <div className="recent-file-details">
+                  <div className="flex flex-col gap-1">
+                    <p className="recent-file-name">{file.name}</p>
+                    <FormattedDateTime date={file.$createdAt} className="caption" />
                   </div>
+                  <ActionDropdown file={file} />
                 </div>
-              ))}
+              </div>
+            ))}
           </ul>
         ) : (
           <p className="empty-list">No files uploaded</p>
@@ -93,10 +99,3 @@ const Dashboard = async () => {
 };
 
 export default Dashboard;
-
-
-// file?.type === "pdf" ||
-//                     file?.type === "word" ||
-//                     file?.type === "presentation"
-//                       ? `v2/${file.type}/${file?.accountId}`
-//                       : `${file?.url}`
