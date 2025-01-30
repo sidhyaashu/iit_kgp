@@ -15,7 +15,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useEffect, useState } from "react";
+import { useState, useCallback, useMemo } from "react";
 import Image from "next/image";
 import { Models } from "node-appwrite";
 import { actionsDropdownItems } from "@/constants";
@@ -28,10 +28,9 @@ import {
   renameFile,
   updateFileUsers,
 } from "@/lib/actions/file.actions";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { FileDetails, ShareInput } from "@/components/ActionsModalContent";
 
-// Define the ActionType to improve type checking
 type ActionType = {
   value: string;
   label: string;
@@ -47,16 +46,15 @@ const ActionDropdown = ({ file }: { file: Models.Document }) => {
   const [emails, setEmails] = useState<string[]>([]);
 
   const path = usePathname();
-  const router = useRouter();
 
-  const closeAllModals = () => {
+  const closeAllModals = useCallback(() => {
     setIsModalOpen(false);
     setIsDropdownOpen(false);
     setAction(null);
     setName(file.name);
-  };
+  }, [file.name]);
 
-  const handleAction = async () => {
+  const handleAction = useCallback(async () => {
     if (!action) return;
 
     setIsLoading(true);
@@ -74,10 +72,11 @@ const ActionDropdown = ({ file }: { file: Models.Document }) => {
       console.error("Action failed:", error);
     } finally {
       setIsLoading(false);
+      
     }
-  };
+  }, [action, emails, file.$id, file.bucketFileId, file.extension, name, path, closeAllModals]);
 
-  const handleRemoveUser = async (email: string) => {
+  const handleRemoveUser = useCallback(async (email: string) => {
     const updatedEmails = emails.filter((e) => e !== email);
 
     try {
@@ -88,9 +87,9 @@ const ActionDropdown = ({ file }: { file: Models.Document }) => {
     }
 
     closeAllModals();
-  };
+  }, [emails, file.$id, path, closeAllModals]);
 
-  const renderDialogContent = () => {
+  const renderDialogContent = useMemo(() => {
     if (!action) return null;
 
     const { value, label } = action;
@@ -104,7 +103,6 @@ const ActionDropdown = ({ file }: { file: Models.Document }) => {
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="prevent-zoom"
             />
           )}
           {value === "details" && <FileDetails file={file} />}
@@ -138,8 +136,7 @@ const ActionDropdown = ({ file }: { file: Models.Document }) => {
         )}
       </DialogContent>
     );
-  };
-
+  }, [action, closeAllModals, handleAction, handleRemoveUser, isLoading, name, file]);
 
   return (
     <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
@@ -154,10 +151,10 @@ const ActionDropdown = ({ file }: { file: Models.Document }) => {
             <DropdownMenuItem
               key={actionItem.value}
               className="shad-dropdown-item"
-              onClick={() => {
+              onClick={() =>{
                 setAction(actionItem);
-                if (["rename", "share", "delete", "details"].includes(actionItem.value)) {
-                  setIsModalOpen(true);
+                if(["rename" ,"delete", "share","details"].includes(actionItem.value)){
+                  setIsModalOpen(true)
                 }
               }}
             >
@@ -192,7 +189,7 @@ const ActionDropdown = ({ file }: { file: Models.Document }) => {
         </DropdownMenuContent>
       </DropdownMenu>
 
-      {renderDialogContent()}
+      {renderDialogContent}
     </Dialog>
   );
 };

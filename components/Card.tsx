@@ -9,8 +9,10 @@ const Card = ({ file }: { file: Models.Document }) => {
   const isRedirect = ["pdf", "word", "presentation"].includes(file?.type);
   const redirectUrl = isRedirect ? `v2/${file.type}/${file?.accountId}` : `${file?.url}`;
 
+  // href={redirectUrl}
+
   return (
-    <Link href={redirectUrl} className="file-card">
+    <div  className="file-card">
       <div className="flex justify-between">
         <Thumbnail
           type={file.type}
@@ -26,17 +28,18 @@ const Card = ({ file }: { file: Models.Document }) => {
         </div>
       </div>
 
-      <div className="file-card-details">
+      <Link href={redirectUrl} className="file-card-details">
         <p className="subtitle-2 line-clamp-1">{file.name}</p>
         <FormattedDateTime
           date={file.$createdAt}
           className="body-2 text-light-100"
+          ind={true}
         />
         <p className="caption line-clamp-1 text-light-200">
           By: {file.owner.fullName}
         </p>
-      </div>
-    </Link>
+      </Link>
+    </div>
   );
 };
 

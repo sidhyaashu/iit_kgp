@@ -19,6 +19,8 @@ const Dashboard = async () => {
   ]);
 
   const usageSummary = getUsageSummary(totalSpace);
+
+  
   
 
   return (
@@ -62,8 +64,8 @@ const Dashboard = async () => {
 
         {files?.documents?.length > 0 ? (
           <ul className="mt-5 flex flex-col gap-5">
-            {files?.documents?.map((file: Models.Document) => (
-              <div
+            {files?.documents?.map((file: Models.Document) => {
+              return (<div
                 key={file.$id}
                 className="flex items-center gap-3"
               >
@@ -75,12 +77,12 @@ const Dashboard = async () => {
                 <div className="recent-file-details">
                   <div className="flex flex-col gap-1">
                     <p className="recent-file-name">{file.name}</p>
-                    <FormattedDateTime date={file.$createdAt} className="caption" />
+                    <FormattedDateTime ind={false} date={file.$createdAt} className="caption" />
                   </div>
                   <ActionDropdown file={file} />
                 </div>
-              </div>
-            ))}
+              </div>)
+            })}
           </ul>
         ) : (
           <p className="empty-list">No files uploaded</p>
