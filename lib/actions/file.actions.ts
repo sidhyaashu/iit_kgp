@@ -11,7 +11,6 @@ import pdfParse from "pdf-parse";
 import axios from "axios";
 import fs from "fs";
 import path from "path";
-// import pdf from 'pdf-parse/lib/pdf-parse'
 
 
 export async function downloadFileFromURL(url: string) {
