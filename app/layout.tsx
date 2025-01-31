@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Poppins } from 'next/font/google'
 
 import "./globals.css";
+// import { getCurrentUser } from "@/lib/actions/user.actions";
+// import { redirect } from 'next/navigation';
 
 const poppins = Poppins({
     subsets: ['latin'],
@@ -15,11 +17,16 @@ export const metadata: Metadata = {
 };
 
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+
+    // const currentUser = await getCurrentUser();
+  
+    // if (!currentUser) return redirect('/sign-in');
+
   return (
     <html lang="en">
       <body

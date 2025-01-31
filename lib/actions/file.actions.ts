@@ -8,33 +8,27 @@ import { constructFileUrl, getFileType, parseStringify } from "@/lib/utils";
 import { revalidatePath } from "next/cache";
 import { getCurrentUser } from "@/lib/actions/user.actions";
 import pdfParse from "pdf-parse";
-
-
 import axios from "axios";
 import fs from "fs";
-import path from "path"
+import path from "path";
 
 export async function downloadFileFromURL(url: string) {
   try {
     const response = await axios.get(url, { responseType: "arraybuffer" });
-    const filePath = path.resolve(process.cwd(),"temp", 'downloadedFile.pdf');
+    const filePath = path.resolve(process.cwd(), "temp", 'downloadedFile.pdf');
     fs.writeFileSync(filePath, response.data);
 
+    const dataBuffer = fs.readFileSync(filePath);
+    const data = await pdfParse(dataBuffer);
 
-    let dataBuffer = fs.readFileSync(filePath);
-    let data = await pdfParse(dataBuffer)
-
-    console.log("File downloaded successfully.");
     return data.text;
   } catch (error) {
-    console.error("Error downloading file:", error);
-    throw new Error(`Failed to download file from URL: ${url}.`);
+    throw new Error(`Failed to download file from URL: ${url}`);
   }
 }
 
-
 const handleError = (error: unknown, message: string) => {
-  console.log(error, message);
+  console.error("Error:", error, "Message:", message);
   throw error;
 };
 
@@ -52,7 +46,7 @@ export const uploadFile = async ({
     const bucketFile = await storage.createFile(
       appwriteConfig.bucketId,
       ID.unique(),
-      inputFile,
+      inputFile
     );
 
     const fileDocument = {
@@ -67,17 +61,12 @@ export const uploadFile = async ({
       bucketFileId: bucketFile.$id,
     };
 
-    const newFile = await databases
-      .createDocument(
-        appwriteConfig.databaseId,
-        appwriteConfig.filesCollectionId,
-        ID.unique(),
-        fileDocument,
-      )
-      .catch(async (error: unknown) => {
-        await storage.deleteFile(appwriteConfig.bucketId, bucketFile.$id);
-        handleError(error, "Failed to create file document");
-      });
+    const newFile = await databases.createDocument(
+      appwriteConfig.databaseId,
+      appwriteConfig.filesCollectionId,
+      ID.unique(),
+      fileDocument
+    );
 
     revalidatePath(path);
     return parseStringify(newFile);
@@ -91,7 +80,7 @@ const createQueries = (
   types: string[],
   searchText: string,
   sort: string,
-  limit?: number,
+  limit?: number
 ) => {
   const queries = [
     Query.or([
@@ -108,7 +97,7 @@ const createQueries = (
     const [sortBy, orderBy] = sort.split("-");
 
     queries.push(
-      orderBy === "asc" ? Query.orderAsc(sortBy) : Query.orderDesc(sortBy),
+      orderBy === "asc" ? Query.orderAsc(sortBy) : Query.orderDesc(sortBy)
     );
   }
 
@@ -133,10 +122,9 @@ export const getFiles = async ({
     const files = await databases.listDocuments(
       appwriteConfig.databaseId,
       appwriteConfig.filesCollectionId,
-      queries,
+      queries
     );
 
-    console.log({ files });
     return parseStringify(files);
   } catch (error) {
     handleError(error, "Failed to get files");
@@ -159,7 +147,7 @@ export const renameFile = async ({
       fileId,
       {
         name: newName,
-      },
+      }
     );
 
     revalidatePath(path);
@@ -183,13 +171,13 @@ export const updateFileUsers = async ({
       fileId,
       {
         users: emails,
-      },
+      }
     );
 
     revalidatePath(path);
     return parseStringify(updatedFile);
   } catch (error) {
-    handleError(error, "Failed to rename file");
+    handleError(error, "Failed to update file users");
   }
 };
 
@@ -204,7 +192,7 @@ export const deleteFile = async ({
     const deletedFile = await databases.deleteDocument(
       appwriteConfig.databaseId,
       appwriteConfig.filesCollectionId,
-      fileId,
+      fileId
     );
 
     if (deletedFile) {
@@ -214,11 +202,10 @@ export const deleteFile = async ({
     revalidatePath(path);
     return parseStringify({ status: "success" });
   } catch (error) {
-    handleError(error, "Failed to rename file");
+    handleError(error, "Failed to delete file");
   }
 };
 
-// ============================== TOTAL FILE SPACE USED
 export async function getTotalSpaceUsed() {
   try {
     const { databases } = await createSessionClient();
@@ -228,7 +215,7 @@ export async function getTotalSpaceUsed() {
     const files = await databases.listDocuments(
       appwriteConfig.databaseId,
       appwriteConfig.filesCollectionId,
-      [Query.equal("owner", [currentUser.$id])],
+      [Query.equal("owner", [currentUser.$id])]
     );
 
     const totalSpace = {
@@ -242,7 +229,7 @@ export async function getTotalSpaceUsed() {
       csv: { size: 0, latestDate: "" },
       presentation: { size: 0, latestDate: "" },
       used: 0,
-      all: 2 * 1024 * 1024 * 1024 /* 2GB available bucket storage */,
+      all: 2 * 1024 * 1024 * 1024, // 2GB available bucket storage
     };
 
     files.documents.forEach((file) => {
@@ -260,8 +247,6 @@ export async function getTotalSpaceUsed() {
 
     return parseStringify(totalSpace);
   } catch (error) {
-    handleError(error, "Error calculating total space used:, ");
+    handleError(error, "Error calculating total space used");
   }
 }
-
-
