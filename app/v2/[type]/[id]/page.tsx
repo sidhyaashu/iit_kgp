@@ -35,7 +35,7 @@ interface Message {
 const ViewFiles = ({ params }: { params: Params }) => {
   const navigate = useRouter();
 
-  const type = params.type
+  const { type } = React.use(params)
   
 
   const [currentPdf, setCurrentPdf] = useState<string | null>(null);
@@ -55,7 +55,7 @@ const ViewFiles = ({ params }: { params: Params }) => {
     setLoading(true);
     setError(null);
     try {
-      const { documents } = await getFiles({ types: [type as FileType] });
+      const { documents } = await getFiles({ types: type });
       setFiles(documents);
       setCurrentPdf(documents[0]?.url);
       setCurrentBucketFieldId(documents[0]?.bucketFileId);
