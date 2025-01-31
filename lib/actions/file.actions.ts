@@ -11,11 +11,13 @@ import pdfParse from "pdf-parse";
 import axios from "axios";
 import fs from "fs";
 import path from "path";
+// import pdf from 'pdf-parse/lib/pdf-parse'
+
 
 export async function downloadFileFromURL(url: string) {
   try {
     const response = await axios.get(url, { responseType: "arraybuffer" });
-    const filePath = path.resolve(process.cwd(), "temp", 'downloadedFile.pdf');
+    const filePath = path.resolve(process.cwd(), "test","data", "05-versions-space.pdf");
     fs.writeFileSync(filePath, response.data);
 
     const dataBuffer = fs.readFileSync(filePath);
