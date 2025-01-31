@@ -9,18 +9,20 @@ import { revalidatePath } from "next/cache";
 import { getCurrentUser } from "@/lib/actions/user.actions";
 import pdfParse from "pdf-parse";
 import axios from "axios";
-import fs from "fs";
-import path from "path";
+// import fs from "fs";
+// import path from "path";
 
 
 export async function downloadFileFromURL(url: string) {
   try {
     const response = await axios.get(url, { responseType: "arraybuffer" });
-    const filePath = path.resolve(process.cwd(), "test","data", "05-versions-space.pdf");
-    fs.writeFileSync(filePath, response.data);
+    // const filePath = path.resolve(process.cwd(), "test","data", "05-versions-space.pdf");
+    // fs.writeFileSync(filePath, response.data);
 
-    const dataBuffer = fs.readFileSync(filePath);
-    const data = await pdfParse(dataBuffer);
+    // console.log(response.data)
+
+    // const dataBuffer = fs.readFileSync(filePath);
+    const data = await pdfParse(response.data);
 
     return data.text;
   } catch (error) {
